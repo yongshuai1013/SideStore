@@ -7379,6 +7379,23 @@
         }
       }
     },
+    "Device is not reachable at the specified IP or Endpoint.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device is not reachable at the specified IP or Endpoint."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法連線到指定 IP 或端點的裝置。"
+          }
+        }
+      }
+    },
     "Device registration pending": {
       "extractionState": "manual",
       "localizations": {
@@ -19415,6 +19432,23 @@
         }
       }
     },
+    "SideJITServer is unable to connect to your iDevice. Please make sure you have paired your iDevice by running 'SideJITServer -y', or try refreshing SideJITServer from Settings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideJITServer is unable to connect to your iDevice. Please make sure you have paired your iDevice by running 'SideJITServer -y', or try refreshing SideJITServer from Settings."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideJITServer 無法連接到您的 iDevice。請確認您已執行「SideJITServer -y」完成 iDevice 配對，或嘗試在設定中重新整理 SideJITServer。"
+          }
+        }
+      }
+    },
     "SideSign Client Configuration": {
       "extractionState": "manual",
       "localizations": {
@@ -19479,6 +19513,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "SideStore"
+          }
+        }
+      }
+    },
+    "SideStore Expired": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore Expired"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore 已到期"
+          }
+        }
+      }
+    },
+    "SideStore Expiring Extremely Soon": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore Expiring Extremely Soon"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore 即將立即到期"
+          }
+        }
+      }
+    },
+    "SideStore Expiring Soon": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore Expiring Soon"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore 即將到期"
           }
         }
       }
@@ -19602,6 +19687,23 @@
         }
       }
     },
+    "SideStore has expired. Please refresh or reinstall the app.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore has expired. Please refresh or reinstall the app."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore 已到期。請續簽或重新安裝 App。"
+          }
+        }
+      }
+    },
     "SideStore requires an Apple ID to create development certificates and provisioning profiles for signing apps.": {
       "extractionState": "manual",
       "localizations": {
@@ -19666,6 +19768,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "SideStore 是由不同的簽署工具（例如 Xcode 或 AltStore）安裝的。"
+          }
+        }
+      }
+    },
+    "SideStore will expire in 24 hours. Open the app and refresh it to prevent it from expiring.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore will expire in 24 hours. Open the app and refresh it to prevent it from expiring."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore 將在 24 小時後到期。開啟 App 並續簽以避免到期。"
+          }
+        }
+      }
+    },
+    "SideStore will expire in 6 hours! Refresh now to prevent expiration.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore will expire in 6 hours! Refresh now to prevent expiration."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SideStore 將在 6 小時後到期！立即續簽以避免到期。"
           }
         }
       }
@@ -21285,6 +21421,40 @@
         }
       }
     },
+    "The operation returned an unknown result.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The operation returned an unknown result."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作傳回未知的結果。"
+          }
+        }
+      }
+    },
+    "The operation timed out.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The operation timed out."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作逾時。"
+          }
+        }
+      }
+    },
     "The private key for the active signing certificate is missing from this device's keychain.": {
       "extractionState": "manual",
       "localizations": {
@@ -21519,6 +21689,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "主題管理器"
+          }
+        }
+      }
+    },
+    "There are no SideStore sources.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There are no SideStore sources."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目前沒有 SideStore 來源。"
+          }
+        }
+      }
+    },
+    "There are no active sideloaded apps to refresh.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There are no active sideloaded apps to refresh."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目前沒有可續簽的啟用中側載 App。"
           }
         }
       }
@@ -22488,6 +22692,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "無法存取共用的 App Group 容器。拒絕建立或使用私密沙箱備援資料庫。"
+          }
+        }
+      }
+    },
+    "Unable to connect to SideJITServer. Please check that you are on the same Wi-Fi of and your Firewall has been set correctly on your server.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to connect to SideJITServer. Please check that you are on the same Wi-Fi of and your Firewall has been set correctly on your server."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法連接到 SideJITServer。請確認您與伺服器連接同一個 Wi-Fi，且伺服器上的防火牆已正確設定。"
           }
         }
       }
@@ -23933,6 +24154,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "昨天"
+          }
+        }
+      }
+    },
+    "You are not signed in.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are not signed in."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "您尚未登入。"
           }
         }
       }
