@@ -59,12 +59,19 @@ struct ActiveAppsWidget: Widget
         }
         else
         {
-            return StaticConfiguration(kind: widgetKind, provider: UnsupportedTimelineProvider()) { _ in
-                UnsupportedWidgetView(requiredVersion: "iOS 17")
+            // Legacy path for iOS 15/16, following AppDetailWidget: the
+            // SiriKit ViewAppIntent + IntentConfiguration replaces the
+            // iOS 17 WidgetUpdateIntent + AppIntentConfiguration, and
+            // only the display is restored (no in-widget interactive
+            // buttons). Tapping the widget opens SideStore as usual.
+            return IntentConfiguration(kind: widgetKind,
+                                       intent: ViewAppIntent.self,
+                                       provider: LegacyActiveAppsTimelineProvider()) { entry in
+                LegacyActiveAppsWidgetView(entry: entry)
             }
             .supportedFamilies([.systemMedium])
             .configurationDisplayName("Active Apps")
-            .description("Requires iOS 17 or later.")
+            .description("View remaining days until your active apps expire. Tap the countdown timers to refresh them in the background.")
         }
     }
 }
@@ -258,4 +265,147 @@ private struct ActiveAppsWidgetView: View
     
     AppsEntry<Void>(date: Date(), apps: [])
     AppsEntry<Void>(date: Date(), apps: [], isPlaceholder: true)
+}
+
+// MARK: - iOS 15/16 Legacy View
+//
+// Display-only counterpart of ActiveAppsWidgetView for the legacy
+// IntentConfiguration path. It shows the same active apps with their
+// expiration countdowns, but omits everything that requires iOS 17:
+// containerBackground (replaced by the widgetBackground helper, which
+// falls back to a plain background), the accented rendering mode, and
+// the interactive AppIntent buttons (refresh + pagination).
+
+private struct LegacyActiveAppsWidgetView: View
+{
+    var entry: AppsEntry<ViewAppIntent>
+    
+    @Environment(\.colorScheme)
+    private var colorScheme
+    
+    var body: some View {
+        Group {
+            if entry.apps.isEmpty
+            {
+                placeholder
+            }
+            else
+            {
+                content
+            }
+        }
+        .foregroundColor(.white)
+        .widgetBackground(backgroundView)
+    }
+    
+    private var backgroundView: some View {
+        Group {
+            if colorScheme == .dark
+            {
+                LinearGradient(colors: [.altGradientDark, .altGradientExtraDark], startPoint: .top, endPoint: .bottom)
+            }
+            else
+            {
+                LinearGradient(colors: [.altGradientLight, .altGradientDark], startPoint: .top, endPoint: .bottom)
+            }
+        }
+    }
+    
+    private var content: some View {
+        GeometryReader { (geometry) in
+            HStack(alignment: .center) {
+                
+                let itemsPerPage = ActiveAppsWidget.Constants.MAX_ROWS_PER_PAGE
+                
+                let preferredRowHeight = (geometry.size.height / Double(itemsPerPage)) - 8
+                let rowHeight = min(preferredRowHeight, geometry.size.height / 2)
+
+                LazyVStack(spacing: 12) {
+                    ForEach(Array(entry.apps.enumerated()), id: \.offset) { index, app in
+                    
+                        let icon: UIImage = app.icon ?? UIImage(named: "SideStore") ?? UIImage(systemName: "app.fill")!
+                        
+                        // 1024x1024 images are not supported by previews but supported by device
+                        // so we scale the image to 97% so as to reduce its actual size but not too much
+                        // to somewhere below value, acceptable by previews ie < 1042x948
+                        let scalingFactor = 0.97
+                        
+                        let resizedSize = CGSize(
+                            width:  icon.size.width * scalingFactor,
+                            height: icon.size.height * scalingFactor
+                        )
+                        
+                        let resizedIcon = icon.resizing(to: resizedSize) ?? icon
+                        let cornerRadius = rowHeight / 5.0
+                        let daysRemaining = app.expirationDate.numberOfCalendarDays(since: entry.date)
+
+                        HStack(spacing: 10) {
+                            Image(uiImage: resizedIcon)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .luminanceToAlphaInAccentedMode()
+                                .mask(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                                .widgetAccentableIfAvailable()
+                            
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(app.name)
+                                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                
+                                let text = if entry.date > app.expirationDate
+                                {
+                                    Text("Expired")
+                                }
+                                else
+                                {
+                                    Text("Expires in \(daysRemaining) ") + (daysRemaining == 1 ? Text("day") : Text("days"))
+                                }
+                                
+                                text
+                                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.secondary)
+                            }
+                            .widgetAccentableIfAvailable()
+                            
+                            Spacer()
+                            
+                            Countdown(startDate: app.refreshedDate,
+                                      endDate: app.expirationDate,
+                                      currentDate: entry.date,
+                                      strokeWidth: 3.0) // Slightly thinner circle stroke width
+                            .background {
+                                Color.black.opacity(0.1)
+                                    .mask(Capsule())
+                                    .padding(.all, -5)
+                            }
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .invalidatableContentIfAvailable()
+                            .widgetAccentableIfAvailable()
+
+                        }
+                        .frame(height: rowHeight)
+                    
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onAppear {
+                debugLog("[LegacyActiveAppsWidgetView] onAppear: isPlaceholder=\(entry.isPlaceholder), appsCount=\(entry.apps.count), date=\(entry.date)")
+            }
+        }
+    }
+    
+    private var placeholder: some View {
+        VStack(spacing: 4) {
+            Text("Open SideStore")
+                .font(.system(.body, design: .rounded))
+                .fontWeight(.semibold)
+                .foregroundColor(Color.white.opacity(0.8))
+            Text("Launch app to update widget")
+                .font(.system(.caption, design: .rounded))
+                .foregroundColor(Color.white.opacity(0.5))
+                .multilineTextAlignment(.center)
+        }
+        .padding()
+        .unredacted()
+    }
 }

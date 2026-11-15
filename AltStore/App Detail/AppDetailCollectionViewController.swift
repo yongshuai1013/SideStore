@@ -51,6 +51,13 @@ class AppDetailCollectionViewController: UICollectionViewController
     private lazy var privacyDataSource = self.makePrivacyDataSource()
     private lazy var entitlementsDataSource = self.makeEntitlementsDataSource()
     
+    // iOS 15 only: UIHostingConfiguration is iOS 16+, so the legacy
+    // privacy card is hosted in a UIHostingController whose view is
+    // embedded in the privacy cell instead. There is only ever a
+    // single privacy item, so a single hosting controller is retained
+    // here and its root view is updated whenever the cell is configured.
+    private var legacyPrivacyHostingController: UIHostingController<LegacyAppPermissionsCard<AppPermission>>?
+    
     private var headerRegistration: UICollectionView.SupplementaryRegistration<UICollectionViewListCell>!
     
     override var collectionViewLayout: UICollectionViewCompositionalLayout {
@@ -160,7 +167,7 @@ private extension AppDetailCollectionViewController
             switch section
             {
             case .privacy:
-                guard !privacyPermissions.isEmpty, #available(iOS 16, *) else { return nil } // Hide section pre-iOS 16.
+                guard !privacyPermissions.isEmpty else { return nil }
                 
                 let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(50)) // Underestimate height to prevent jumping size abruptly.
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -204,27 +211,68 @@ private extension AppDetailCollectionViewController
         dataSource.cellIdentifierHandler = { _ in "PrivacyCell" }
         dataSource.numberOfSectionsHandler = { 1 }
         dataSource.dynamicCellConfigurationHandler = { [weak self] (cell, indexPath) in
-            guard let self, #available(iOS 16, tvOS 16, *) else { return }
+            guard let self else { return }
             
-            cell.contentConfiguration = UIHostingConfiguration {
-                AppPermissionsCard(title: "Privacy",
-                                   description: "\(self.app.name) may request access to the following:",
-                                   tintColor: Color(uiColor: self.app.tintColor ?? .altPrimary),
-                                   permissions: self.privacyPermissions)
+            if #available(iOS 16, tvOS 16, *)
+            {
+                cell.contentConfiguration = UIHostingConfiguration {
+                    AppPermissionsCard(title: "Privacy",
+                                       description: "\(self.app.name) may request access to the following:",
+                                       tintColor: Color(uiColor: self.app.tintColor ?? .altPrimary),
+                                       permissions: self.privacyPermissions)
+                }
+                .margins(.horizontal, 0)
             }
-            .margins(.horizontal, 0)
+            else
+            {
+                // iOS 15: UIHostingConfiguration is unavailable, so host
+                // the legacy card's view in the cell directly instead.
+                self.configureLegacyPrivacyCell(cell)
+            }
         }
         
-        if #available(iOS 16, tvOS 16, *)
+        dataSource.numberOfItemsHandler = { [privacyPermissions] _ in !privacyPermissions.isEmpty ? 1 : 0 }
+        
+        return dataSource
+    }
+    
+    // iOS 15 fallback for makePrivacyDataSource(), following the same
+    // #available split used above for UIHostingConfiguration.
+    func configureLegacyPrivacyCell(_ cell: UICollectionViewCell)
+    {
+        let card = LegacyAppPermissionsCard(title: "Privacy",
+                                            description: "\(self.app.name) may request access to the following:",
+                                            tintColor: Color(uiColor: self.app.tintColor ?? .altPrimary),
+                                            permissions: self.privacyPermissions)
+        
+        let hostingController: UIHostingController<LegacyAppPermissionsCard<AppPermission>>
+        
+        if let existingHostingController = self.legacyPrivacyHostingController
         {
-            dataSource.numberOfItemsHandler = { [privacyPermissions] _ in !privacyPermissions.isEmpty ? 1 : 0 }
+            hostingController = existingHostingController
+            hostingController.rootView = card
         }
         else
         {
-            dataSource.numberOfItemsHandler = { _ in 0 }
+            hostingController = UIHostingController(rootView: card)
+            hostingController.view.backgroundColor = .clear
+            
+            self.addChild(hostingController)
+            hostingController.didMove(toParent: self)
+            
+            self.legacyPrivacyHostingController = hostingController
         }
         
-        return dataSource
+        hostingController.view.removeFromSuperview()
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        cell.contentView.addSubview(hostingController.view)
+        
+        NSLayoutConstraint.activate([
+            hostingController.view.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor),
+            hostingController.view.topAnchor.constraint(equalTo: cell.contentView.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor),
+        ])
     }
     
     func makeEntitlementsDataSource() -> CompositeCollectionViewDataSource<AppPermission>

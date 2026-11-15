@@ -119,3 +119,41 @@ extension ActiveAppsTimelineProvider: AppIntentTimelineProvider {
         return timeline
     }
 }
+
+/// Legacy (SiriKit) TimelineProvider for ActiveAppsWidget on iOS 15/16.
+///
+/// Mirrors AppsTimelineProvider (the IntentTimelineProvider used by
+/// AppDetailWidget's legacy path): it is driven by the SiriKit
+/// ViewAppIntent instead of the iOS 17 WidgetUpdateIntent, and resolves
+/// the *active* app bundle IDs — like the AppIntent provider above —
+/// rather than a single selected app. There is no pagination on this
+/// path (the pagination buttons are iOS 17 AppIntents), so entries are
+/// limited to the first page of active apps.
+class LegacyActiveAppsTimelineProvider: AppsTimelineProviderBase<ViewAppIntent>, IntentTimelineProvider
+{
+    func getSnapshot(for intent: ViewAppIntent, in context: Context, completion: @escaping (AppsEntry<ViewAppIntent>) -> Void)
+    {
+        debugLog("[LegacyActiveAppsTimelineProvider] Legacy getSnapshot")
+        Task {
+            let bundleIDs = await self.fetchActiveAppBundleIDs()
+            let snapshot = await self.snapshot(for: bundleIDs, in: intent)
+            completion(snapshot)
+        }
+    }
+    
+    func getTimeline(for intent: ViewAppIntent, in context: Context, completion: @escaping (Timeline<AppsEntry<ViewAppIntent>>) -> Void)
+    {
+        debugLog("[LegacyActiveAppsTimelineProvider] Legacy getTimeline")
+        Task {
+            let bundleIDs = await self.fetchActiveAppBundleIDs()
+            let timeline = await self.timeline(for: bundleIDs, in: intent)
+            completion(timeline)
+        }
+    }
+    
+    override func getUpdatedData(_ apps: [AppSnapshot], _ context: ViewAppIntent?) -> [AppSnapshot]
+    {
+        // No pagination without AppIntents: always show the first page.
+        return Array(apps.prefix(Int(ActiveAppsWidget.Constants.MAX_ROWS_PER_PAGE)))
+    }
+}

@@ -160,9 +160,40 @@ extension ALTAppPrivacyPermission: ALTAppPermission
     public var type: ALTAppPermissionType { .privacy }
     
     public var synthesizedName: String? {
-        guard #available(iOS 16, tvOS 16, *), let match = self.rawValue.wholeMatch(of: Regex.privacyPermission) else { return nil }
-        
-        let synthesizedNamed = String(match.1)
-        return synthesizedNamed
+        if #available(iOS 16, tvOS 16, *)
+        {
+            guard let match = self.rawValue.wholeMatch(of: Regex.privacyPermission) else { return nil }
+            
+            let synthesizedNamed = String(match.1)
+            return synthesizedNamed
+        }
+        else
+        {
+            // iOS 15 fallback equivalent to Regex.privacyPermission:
+            // optionally consume an "NS" prefix, capture one or more
+            // characters, then match "UsageDescription" plus an optional
+            // suffix, anchored to the whole string.
+            //
+            // The regex capture is greedy, so it consumes as much as
+            // possible while still allowing "UsageDescription" to match:
+            // the captured name therefore ends at the *last* occurrence
+            // of "UsageDescription" (e.g. "NSPhotoLibraryAddUsageDescription"
+            // captures "PhotoLibraryAdd", and "NSCameraUsageDescription"
+            // captures "Camera"). The optional "NS" prefix is attempted
+            // first, matching the regex's greedy Optionally, and only if
+            // that leaves no valid capture do we retry without it.
+            let candidates: [String] = self.rawValue.hasPrefix("NS") ? [String(self.rawValue.dropFirst(2)), self.rawValue] : [self.rawValue]
+            
+            for candidate in candidates
+            {
+                guard let range = candidate.range(of: "UsageDescription", options: .backwards),
+                      range.lowerBound != candidate.startIndex // Capture must contain at least one character.
+                else { continue }
+                
+                return String(candidate[..<range.lowerBound])
+            }
+            
+            return nil
+        }
     }
 }
