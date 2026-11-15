@@ -1,0 +1,3 @@
+"NSLocalNetworkUsageDescription" = "SideStore 可使用本地網路存取來探索您網路上的 Bonjour（mDNS）服務。此權限並非核心功能所必需。";
+"NSLocationWhenInUseUsageDescription" = "SideStore 使用定位更新來讓背景作業持續運作。";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "SideStore 使用定位更新來讓背景作業持續運作。";
