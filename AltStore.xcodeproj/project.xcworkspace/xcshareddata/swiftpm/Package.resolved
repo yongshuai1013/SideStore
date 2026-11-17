@@ -4,10 +4,9 @@
     {
       "identity" : "anisettekit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mahee96/AnisetteKit.git",
+      "location" : "https://github.com/yongshuai1013/AnisetteKit.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "db8b41022697b6c19be8a5f01a1ce834145a2a26"
+        "revision" : "2b4a643f5302826828bf36580fee61aba655b6bb"
       }
     },
     {
