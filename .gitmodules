@@ -2,8 +2,8 @@
 
 [submodule "Dependencies/minimuxer"]
     path = Dependencies/minimuxer
-    url = https://github.com/yongshuai1013/minimuxer
-    branch = develop
+    url = https://github.com/yongshuai1013/minimuxer-rust
+    branch = rust-rewrite
 [submodule "Dependencies/SideSign"]
 	path = Dependencies/SideSign
 	url = https://github.com/yongshuai1013/SideSign
