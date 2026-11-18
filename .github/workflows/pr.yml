@@ -77,9 +77,9 @@ jobs:
         if: failure()
         run: |
           echo "===== error lines in raw build.log ====="
-          grep -n "error:" build/logs/build.log | head -120 || true
+          grep -n "error:" build/logs/build.log | head -400 || true
           echo "===== Minimuxer mentions ====="
-          grep -n "Minimuxer" build/logs/build.log | head -80 || true
+          grep "error:" build/logs/build.log | grep -o "work/SideStore/SideStore/[^:]*" | sort | uniq -c | sort -rn | head -30 || true
           echo "===== package resolution tail ====="
           grep -n "Resolved source packages" -A 40 build/logs/build.log | head -60 || true
 
