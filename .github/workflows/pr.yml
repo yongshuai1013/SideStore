@@ -73,6 +73,16 @@ jobs:
           mv SideStore.ipa SideStore-${{ env.MARKETING_VERSION }}.ipa
           exit $STATUS
 
+      - name: Dump build log errors (on failure)
+        if: failure()
+        run: |
+          echo "===== error lines in raw build.log ====="
+          grep -n "error:" build/logs/build.log | head -120 || true
+          echo "===== Minimuxer mentions ====="
+          grep -n "Minimuxer" build/logs/build.log | head -80 || true
+          echo "===== package resolution tail ====="
+          grep -n "Resolved source packages" -A 40 build/logs/build.log | head -60 || true
+
       - name: Save Cache
         if: ${{ steps.xcode-cache-fallback.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v3
