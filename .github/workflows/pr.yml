@@ -82,6 +82,12 @@ jobs:
           grep "error:" build/logs/build.log | grep -o "work/SideStore/SideStore/[^:]*" | sort | uniq -c | sort -rn | head -30 || true
           echo "===== package resolution tail ====="
           grep -n "Resolved source packages" -A 40 build/logs/build.log | head -60 || true
+          echo "===== package archives: bridge shim symbols ====="
+          for a in $(find ~/Library/Developer/Xcode/DerivedData -name "*.a" | grep -i "bindings" | head -5); do echo "--- $a"; nm "$a" 2>/dev/null | grep -i "MmEventSink" | head -8; done
+          echo "===== all package .a files ====="
+          find ~/Library/Developer/Xcode/DerivedData -name "*.a" | grep -i "minimuxer" | head -10 || true
+          echo "===== app link command ====="
+          grep -a "clang" build/logs/build.log | grep -a "SideStore.app/SideStore" | head -1 | tr ' ' '\n' | grep -n "Minimuxer\|minimuxer_rust" | head -20 || true
 
       - name: Save Cache
         if: ${{ steps.xcode-cache-fallback.outputs.cache-hit != 'true' }}
