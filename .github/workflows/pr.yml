@@ -86,10 +86,10 @@ jobs:
           for a in $(find ~/Library/Developer/Xcode/DerivedData -name "*.a" | grep -i "bindings" | head -5); do echo "--- $a"; nm "$a" 2>/dev/null | grep -i "MmEventSink" | head -8; done
           echo "===== all package .a files ====="
           find ~/Library/Developer/Xcode/DerivedData -name "*.a" | grep -i "minimuxer" | head -10 || true
-          echo "===== built bindings objects ====="
-          for o in $(find ~/Library/Developer/Xcode/DerivedData -name "*.o" | grep -i "MinimuxerRustBindings" | head -10); do echo "--- $o"; nm "$o" 2>/dev/null | grep -a "swift_bridge__.$MmEventSink" | head -4; done
-          echo "===== app link file list: bindings entries ====="
-          for f in $(find ~/Library/Developer/Xcode/DerivedData -name "*.LinkFileList" | grep -i "SideStore" | head -3); do echo "--- $f"; grep -a -i "bindings\|minimuxer" "$f" | head -10; done
+          echo "===== built bindings objects (exact) ====="
+          for o in $(find ~/Library/Developer/Xcode/DerivedData -name "MinimuxerRustBindings.o" -o -name "minimuxer_rust.o" -o -name "ShellSinks.o" | head -8); do echo "--- $o"; echo -n "shim defs: "; nm "$o" 2>/dev/null | grep -cF 'T ___swift_bridge__$Mm' || true; echo -n "on_log def: "; nm "$o" 2>/dev/null | grep -F '___swift_bridge__$MmEventSink$on_log' | head -2 || true; echo -n "anchor: "; nm "$o" 2>/dev/null | grep -c "mmBridgeShimAnchor" || true; done
+          echo "===== SideStore app LinkFileList bindings entries ====="
+          for f in $(find ~/Library/Developer/Xcode/DerivedData -path "*AltStore.build*" -name "SideStore.LinkFileList" | head -2); do echo "--- $f"; grep -a -i "bindings" "$f" | head -6; done
           echo "===== app link command ====="
           grep -a "clang" build/logs/build.log | grep -a "SideStore.app/SideStore" | head -1 | tr ' ' '\n' | grep -n "Minimuxer\|minimuxer_rust" | head -20 || true
 
