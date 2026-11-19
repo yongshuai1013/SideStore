@@ -16,6 +16,8 @@
 	<string>1F7D5B55-79CE-4546-A029-D4DDC4AF3B6D</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>SideStore 0.6.4</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -88,8 +90,8 @@
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-		<string>sidestore-com.SideStore.SideStore</string>
-		<string>sidestore-com.SideStore.SideStore.Beta</string>
+		<string>sidestore-com.yongshuai.sidestore064</string>
+		<string>sidestore-com.yongshuai.sidestore064.Beta</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -181,7 +183,7 @@
 	</array>
 	<key>OSLogPreferences</key>
 	<dict>
-		<key>com.SideStore.SideStore</key>
+		<key>com.yongshuai.sidestore064</key>
 		<dict>
 			<key>AltJIT</key>
 			<dict>

@@ -14,7 +14,7 @@ import System
 class CoreDataHelper{
     
     private static let STORE_XCMODELD_NAME = "AltStore"
-    // private static let COREDATA_BUNDLE_ID = "com.SideStore.SideStore.AltStoreCore"
+    // private static let COREDATA_BUNDLE_ID = "com.yongshuai.sidestore064.AltStoreCore"
     private static let COREDATA_BUNDLE_ID = "\(Bundle.Info.appbundleIdentifier).AltStoreCore"
     
     // Create a serial dispatch queue to lock access to the Core Data store
