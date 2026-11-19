@@ -1,6 +1,7 @@
 name: Pull Request SideStore build
 
 on:
+  workflow_dispatch:
   pull_request:
     # types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
     types: [opened, synchronize, reopened, ready_for_review]
@@ -19,7 +20,7 @@ concurrency:
 jobs:
   build:
     name: Build and upload SideStore
-    if: ${{ github.event.pull_request.draft == false }}
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: xcode-27
 
     steps:
@@ -33,8 +34,8 @@ jobs:
       - name: Setup Env
         run: |
           MARKETING_VERSION=$(python3 scripts/ci/workflow.py get-marketing-version)
-          SHORT_COMMIT=$(git rev-parse --short ${{ github.event.pull_request.head.sha }})
-          NORMALIZED_VERSION="${MARKETING_VERSION}-pr.${{ github.event.pull_request.number }}+${SHORT_COMMIT}"
+          SHORT_COMMIT=$(git rev-parse --short ${{ github.event.pull_request.head.sha || github.sha }})
+          NORMALIZED_VERSION="${MARKETING_VERSION}-pr.${{ github.event.pull_request.number || 0 }}+${SHORT_COMMIT}"
           python3 scripts/ci/workflow.py set-marketing-version "$NORMALIZED_VERSION"
           echo "SHORT_COMMIT=$SHORT_COMMIT" | tee -a $GITHUB_ENV
           echo "MARKETING_VERSION=$NORMALIZED_VERSION" | tee -a $GITHUB_ENV
@@ -71,6 +72,26 @@ jobs:
           python3 scripts/ci/workflow.py encrypt-build
           mv SideStore.ipa SideStore-${{ env.MARKETING_VERSION }}.ipa
           exit $STATUS
+
+      - name: Dump build log errors (on failure)
+        if: failure()
+        run: |
+          echo "===== error lines in raw build.log ====="
+          grep -n "error:" build/logs/build.log | head -400 || true
+          echo "===== Minimuxer mentions ====="
+          grep "error:" build/logs/build.log | grep -o "work/SideStore/SideStore/[^:]*" | sort | uniq -c | sort -rn | head -30 || true
+          echo "===== package resolution tail ====="
+          grep -n "Resolved source packages" -A 40 build/logs/build.log | head -60 || true
+          echo "===== package archives: bridge shim symbols ====="
+          for a in $(find ~/Library/Developer/Xcode/DerivedData -name "*.a" | grep -i "bindings" | head -5); do echo "--- $a"; nm "$a" 2>/dev/null | grep -i "MmEventSink" | head -8; done
+          echo "===== all package .a files ====="
+          find ~/Library/Developer/Xcode/DerivedData -name "*.a" | grep -i "minimuxer" | head -10 || true
+          echo "===== built bindings objects (exact) ====="
+          for o in $(find ~/Library/Developer/Xcode/DerivedData -name "MinimuxerRustBindings.o" -o -name "minimuxer_rust.o" -o -name "ShellSinks.o" | head -8); do echo "--- $o"; echo -n "shim defs: "; nm "$o" 2>/dev/null | grep -cF 'T ___swift_bridge__$Mm' || true; echo -n "on_log def: "; nm "$o" 2>/dev/null | grep -F '___swift_bridge__$MmEventSink$on_log' | head -2 || true; echo -n "anchor: "; nm "$o" 2>/dev/null | grep -c "mmBridgeShimAnchor" || true; done
+          echo "===== SideStore app LinkFileList bindings entries ====="
+          for f in $(find ~/Library/Developer/Xcode/DerivedData -path "*AltStore.build*" -name "SideStore.LinkFileList" | head -2); do echo "--- $f"; grep -a -i "bindings" "$f" | head -6; done
+          echo "===== app link command ====="
+          grep -a "clang" build/logs/build.log | grep -a "SideStore.app/SideStore" | head -1 | tr ' ' '\n' | grep -n "Minimuxer\|minimuxer_rust" | head -20 || true
 
       - name: Save Cache
         if: ${{ steps.xcode-cache-fallback.outputs.cache-hit != 'true' }}
