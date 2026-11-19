@@ -6,6 +6,6 @@
     branch = develop
 [submodule "Dependencies/SideSign"]
 	path = Dependencies/SideSign
-	url = https://github.com/SideStore/SideSign
-	branch = main
+	url = https://github.com/yongshuai1013/SideSign
+	branch = eratest-0.6.4
 
