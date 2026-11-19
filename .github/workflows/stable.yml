@@ -39,7 +39,7 @@ jobs:
           MARKETING_VERSION=$(python3 scripts/ci/workflow.py get-marketing-version)
           SHORT_COMMIT=$(python3 scripts/ci/workflow.py commit-id)
 
-          if [ "$MARKETING_VERSION" != "${{ github.ref_name }}" ]; then
+          if [ "${{ github.ref_type }}" = "tag" ] && [ "$MARKETING_VERSION" != "${{ github.ref_name }}" ]; then
             echo "Version mismatch"
             echo "Build.xcconfig: $MARKETING_VERSION"
             echo "Tag: ${{ github.ref_name }}"
@@ -107,6 +107,7 @@ jobs:
           path: SideStore.dSYMs.zip
 
       - name: Generate Metadata
+        if: github.ref_type == 'tag'
         run: |
           python3 scripts/ci/workflow.py dump-project-settings
           PRODUCT_NAME=$(python3 scripts/ci/workflow.py read-product-name)
@@ -123,6 +124,7 @@ jobs:
             "$LAST_SUCCESSFUL_COMMIT"
 
       - name: Upload to releases
+        if: github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
