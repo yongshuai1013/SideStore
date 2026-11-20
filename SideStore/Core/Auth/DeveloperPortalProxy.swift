@@ -164,7 +164,7 @@ public class DeveloperPortalProxy {
     public func fetchProvisioningProfiles(team: ALTTeam? = nil) async throws -> [ALTListedProvisioningProfile] {
         let session = try await self.getSession()
         let team = try await self.getTeam(team)
-        return try await ALTAppleAPI.shared.fetchProvisioningProfiles(for: team, session: session)
+        return try await ALTAppleAPI.shared.listProvisioningProfiles(for: team, session: session)
     }
 
     public func fetchProvisioningProfiles(for team: ALTTeam) async throws -> [ALTListedProvisioningProfile] {
@@ -203,14 +203,20 @@ public class DeveloperPortalProxy {
     public func deleteProvisioningProfile(_ profile: ALTListedProvisioningProfile, team: ALTTeam? = nil) async throws -> Bool {
         let session = try await self.getSession()
         let team = try await self.getTeam(team)
-        return try await ALTAppleAPI.shared.deleteProvisioningProfile(profile, team: team, session: session)
+        guard let profileID = profile.identifier else {
+            throw DeveloperPortalError.invalidProvisioningProfileIdentifier(profile.name)
+        }
+        return try await ALTAppleAPI.shared.deleteProvisioningProfile(profileID: profileID, team: team, session: session)
     }
 
     @discardableResult
     public func deleteProvisioningProfile(_ profile: ALTProvisioningProfile, team: ALTTeam? = nil) async throws -> Bool {
         let session = try await self.getSession()
         let team = try await self.getTeam(team)
-        return try await ALTAppleAPI.shared.deleteProvisioningProfile(profile, team: team, session: session)
+        guard let profileID = profile.identifier else {
+            throw DeveloperPortalError.invalidProvisioningProfileIdentifier(profile.name)
+        }
+        return try await ALTAppleAPI.shared.deleteProvisioningProfile(profileID: profileID, team: team, session: session)
     }
 }
 
